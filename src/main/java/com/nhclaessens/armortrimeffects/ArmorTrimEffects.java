@@ -32,7 +32,7 @@ public class ArmorTrimEffects implements ModInitializer {
 	private final ArrayList<String> activeEffectStrings = new ArrayList<>();
 
 
-	SimpleConfig CONFIG = SimpleConfig.of("config").provider(this::provider).request();
+	SimpleConfig CONFIG = SimpleConfig.of("ArmorTrimEffectsConfig").provider(this::provider).request();
 
 	private String provider(String filename) {
 		return "{\n" +
@@ -86,16 +86,16 @@ public class ArmorTrimEffects implements ModInitializer {
 		for(JsonElement set : ARMOR_SETS ) {
 			JsonObject set2 = (JsonObject) set;
 
-			if(set2.get("helmet") != null && (!compareItemToString(currentArmorSet[3], set2.get("helmet")) || TrimDoesNotMatch(set2, currentArmorSet[3], "helmet"))) {
+			if((set2.get("helmet") != null && !compareItemToString(currentArmorSet[3], set2.get("helmet")) || TrimDoesNotMatch(set2, currentArmorSet[3], "helmet"))) {
 				continue;
 			}
-			if(set2.get("chestplate") != null && (!compareItemToString(currentArmorSet[2], set2.get("chestplate")) || TrimDoesNotMatch(set2, currentArmorSet[2], "chestplate"))) {
+			if((set2.get("chestplate") != null && !compareItemToString(currentArmorSet[2], set2.get("chestplate")) || TrimDoesNotMatch(set2, currentArmorSet[2], "chestplate"))) {
 				continue;
 			}
-			if(set2.get("leggings") != null && (!compareItemToString(currentArmorSet[1], set2.get("leggings")) || TrimDoesNotMatch(set2, currentArmorSet[1], "leggings"))) {
+			if((set2.get("leggings") != null && !compareItemToString(currentArmorSet[1], set2.get("leggings")) || TrimDoesNotMatch(set2, currentArmorSet[1], "leggings"))) {
 				continue;
 			}
-			if(set2.get("boots") != null && (!compareItemToString(currentArmorSet[0], set2.get("boots")) || TrimDoesNotMatch(set2, currentArmorSet[0], "boots"))) {
+			if((set2.get("boots") != null && !compareItemToString(currentArmorSet[0], set2.get("boots")) || TrimDoesNotMatch(set2, currentArmorSet[0], "boots"))) {
 				continue;
 			}
 
