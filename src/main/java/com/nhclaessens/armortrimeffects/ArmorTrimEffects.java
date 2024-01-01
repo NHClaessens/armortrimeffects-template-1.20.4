@@ -35,7 +35,11 @@ public class ArmorTrimEffects implements ModInitializer {
 	SimpleConfig CONFIG = SimpleConfig.of("config").provider(this::provider).request();
 
 	private String provider(String filename) {
-		return "#default content";
+		return "{\n" +
+				"  \"armor_sets\": [\n" +
+				"\n" +
+				"  ]\n" +
+				"}";
 	}
 
 	@Override
