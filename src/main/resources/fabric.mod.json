@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "armortrimeffects",
+	"version": "${version}",
+	"name": "ArmorTrimEffects",
+	"description": "Add effects when wearing armor (sets)",
+	"authors": [
+		"NHClaessens"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/armortrimeffects/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.nhclaessens.armortrimeffects.ArmorTrimEffects"
+		],
+		"client": [
+			"com.nhclaessens.armortrimeffects.ArmorTrimEffectsClient"
+		],
+		"fabric-datagen": [
+			"com.nhclaessens.armortrimeffects.ArmorTrimEffectsDataGenerator"
+		]
+	},
+	"mixins": [
+		"armortrimeffects.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.3",
+		"minecraft": "~1.20.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
