@@ -14,6 +14,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.nhclaessens.armortrimeffects.config.SimpleConfig;
@@ -68,6 +69,7 @@ public class ArmorTrimEffects implements ModInitializer {
 					onArmorChanged(currentArmorSet, player);
 				}
 			}
+
 			lastArmorSets.put(playerIndex, currentArmorSet);
 		}
 	}
@@ -107,14 +109,23 @@ public class ArmorTrimEffects implements ModInitializer {
 			for(JsonElement element : effects) {
 				JsonObject object  = (JsonObject) element;
 
-				int level = Integer.parseInt(String.valueOf(object.get("level")));
 				String effectString = object.get("effect").toString().replace("\"", "");
+				LOGGER.info(effectString);
+
+				StatusEffect effect = stringToEffect(effectString);
+
+				if(effect == null) {
+					player.sendMessage(Text.of(effectString + " is not a valid effect"));
+					continue;
+				}
+
+				int level = Integer.parseInt(String.valueOf(object.get("level")));
 				boolean ambient = jsonGetBoolean(object, "ambient");
 				boolean showParticles = jsonGetBoolean(object, "show_particles");
 
 				activeEffectStrings.add(effectString);
 
-				StatusEffectInstance instance = new StatusEffectInstance(stringToEffect(effectString), DURATION, level, ambient, showParticles);
+				StatusEffectInstance instance = new StatusEffectInstance(effect, DURATION, level, ambient, showParticles);
 
 				player.addStatusEffect(instance);
 			}
