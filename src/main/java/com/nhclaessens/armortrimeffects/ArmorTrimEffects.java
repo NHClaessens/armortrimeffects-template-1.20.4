@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import com.nhclaessens.armortrimeffects.config.SimpleConfig;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -88,20 +87,21 @@ public class ArmorTrimEffects implements ModInitializer {
 		for(JsonElement set : ARMOR_SETS ) {
 			JsonObject set2 = (JsonObject) set;
 
-			if((set2.get("helmet") != null && !compareItemToString(currentArmorSet[3], set2.get("helmet")) || TrimDoesNotMatch(set2, currentArmorSet[3], "helmet"))) {
+			if((set2.get("helmet") != null && !compareItemToString(currentArmorSet[3], set2.get("helmet")) || !TrimMatches(set2, currentArmorSet[3], "helmet"))) {
 				continue;
 			}
-			if((set2.get("chestplate") != null && !compareItemToString(currentArmorSet[2], set2.get("chestplate")) || TrimDoesNotMatch(set2, currentArmorSet[2], "chestplate"))) {
+			if((set2.get("chestplate") != null && !compareItemToString(currentArmorSet[2], set2.get("chestplate")) || !TrimMatches(set2, currentArmorSet[2], "chestplate"))) {
 				continue;
 			}
-			if((set2.get("leggings") != null && !compareItemToString(currentArmorSet[1], set2.get("leggings")) || TrimDoesNotMatch(set2, currentArmorSet[1], "leggings"))) {
+			if((set2.get("leggings") != null && !compareItemToString(currentArmorSet[1], set2.get("leggings")) || !TrimMatches(set2, currentArmorSet[1], "leggings"))) {
 				continue;
 			}
-			if((set2.get("boots") != null && !compareItemToString(currentArmorSet[0], set2.get("boots")) || TrimDoesNotMatch(set2, currentArmorSet[0], "boots"))) {
+			if((set2.get("boots") != null && !compareItemToString(currentArmorSet[0], set2.get("boots")) || !TrimMatches(set2, currentArmorSet[0], "boots"))) {
 				continue;
 			}
 
 			// Match
+			LOGGER.info("Apply effects from set: " + set2);
 			JsonArray effects = (JsonArray) set2.get("effects");
 			final int DURATION = Integer.MAX_VALUE;
 
@@ -110,7 +110,6 @@ public class ArmorTrimEffects implements ModInitializer {
 				JsonObject object  = (JsonObject) element;
 
 				String effectString = object.get("effect").toString().replace("\"", "");
-				LOGGER.info(effectString);
 
 				StatusEffect effect = stringToEffect(effectString);
 
@@ -122,6 +121,9 @@ public class ArmorTrimEffects implements ModInitializer {
 				int level = Integer.parseInt(String.valueOf(object.get("level")));
 				boolean ambient = jsonGetBoolean(object, "ambient");
 				boolean showParticles = jsonGetBoolean(object, "show_particles");
+
+				LOGGER.info("APPLY EFFECT: " + effectString + " lvl " + level);
+
 
 				activeEffectStrings.add(effectString);
 
@@ -155,27 +157,26 @@ public class ArmorTrimEffects implements ModInitializer {
 		return null;
 	}
 
-	private boolean TrimDoesNotMatch(JsonObject object, ItemStack item, String piece) {
+	private boolean TrimMatches(JsonObject object, ItemStack item, String piece) {
 		JsonElement pattern = object.get(piece + "_pattern");
 		JsonElement material = object.get(piece + "_material");
 
 		// No trim specified, so all good
-		if(pattern == null && material == null) return false;
+		if(pattern == null && material == null) return true;
 
 		NbtCompound trim = (NbtCompound) getTrim(item);
-		if(trim == null) return true;
+		if(trim == null) return false;
 
-		boolean match = true;
+		boolean patternmatch = true, materialmatch = true;
 		if(pattern != null) {
-			LOGGER.info(piece + " pattern: " + trim.getString("pattern"));
-			match = ("minecraft:" + pattern).replace("\"", "").equals(trim.getString("pattern"));
+			patternmatch = ("minecraft:" + pattern).replace("\"", "").equals(trim.getString("pattern"));
 		}
 		if(material != null) {
-			LOGGER.info(piece + " material: " + trim.getString("material"));
-			match = ("minecraft:" + material).replace("\"", "").equals(trim.getString("material"));
+			materialmatch = ("minecraft:" + material).replace("\"", "").equals(trim.getString("material"));
 		}
 
-		return !match;
+		LOGGER.info("Pattern match: " + patternmatch + "Material match: " + materialmatch);
+		return patternmatch && materialmatch;
 	}
 
 	private StatusEffect stringToEffect(String string) {
@@ -206,6 +207,7 @@ public class ArmorTrimEffects implements ModInitializer {
 			case "levitation" -> StatusEffects.LEVITATION;
 			case "luck" -> StatusEffects.LUCK;
 			case "unluck" -> StatusEffects.UNLUCK;
+			case "slow_falling" -> StatusEffects.SLOW_FALLING;
 			case "conduit_power" -> StatusEffects.CONDUIT_POWER;
 			case "dolphins_grace" -> StatusEffects.DOLPHINS_GRACE;
 			case "bad_omen" -> StatusEffects.BAD_OMEN;
