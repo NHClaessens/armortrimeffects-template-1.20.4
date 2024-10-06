@@ -6,12 +6,17 @@ import com.google.gson.JsonObject;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.ComponentType;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -30,6 +35,7 @@ public class ArmorTrimEffects implements ModInitializer {
 	private final HashMap<Number, ItemStack[]> lastArmorSets = new HashMap<>();
 	private JsonArray ARMOR_SETS = null;
 	private final ArrayList<String> activeEffectStrings = new ArrayList<>();
+	private final boolean debug = false;
 
 
 	SimpleConfig CONFIG = SimpleConfig.of("ArmorTrimEffectsConfig").provider(this::provider).request();
@@ -45,7 +51,7 @@ public class ArmorTrimEffects implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		ARMOR_SETS = CONFIG.getOrDefaultJsonArray("armor_sets", (new JsonArray()));
-		LOGGER.info(String.valueOf(ARMOR_SETS));
+		if(debug) LOGGER.info(String.valueOf(ARMOR_SETS));
 
 		ServerTickEvents.END_WORLD_TICK.register(this::checkArmor);
 	}
@@ -101,7 +107,7 @@ public class ArmorTrimEffects implements ModInitializer {
 			}
 
 			// Match
-			LOGGER.info("Apply effects from set: " + set2);
+			if(debug) LOGGER.info("Apply effects from set: " + set2);
 			JsonArray effects = (JsonArray) set2.get("effects");
 			final int DURATION = Integer.MAX_VALUE;
 
@@ -111,7 +117,7 @@ public class ArmorTrimEffects implements ModInitializer {
 
 				String effectString = object.get("effect").toString().replace("\"", "");
 
-				StatusEffect effect = stringToEffect(effectString);
+				RegistryEntry<StatusEffect> effect = stringToEffect(effectString);
 
 				if(effect == null) {
 					player.sendMessage(Text.of(effectString + " is not a valid effect"));
@@ -122,7 +128,7 @@ public class ArmorTrimEffects implements ModInitializer {
 				boolean ambient = jsonGetBoolean(object, "ambient");
 				boolean showParticles = jsonGetBoolean(object, "show_particles");
 
-				LOGGER.info("APPLY EFFECT: " + effectString + " lvl " + level);
+				if(debug) LOGGER.info("APPLY EFFECT: " + effectString + " lvl " + level);
 
 
 				activeEffectStrings.add(effectString);
@@ -144,16 +150,14 @@ public class ArmorTrimEffects implements ModInitializer {
 		return val != null && val.toString().equals("true");
 	}
 
-	private NbtElement getTrim(ItemStack item) {
-		if(item.hasNbt()) {
-			NbtCompound nbt = item.getNbt();
+	private ArmorTrim getTrim(ItemStack item) {
+			ComponentMap nbt = item.getComponents();
 
             assert nbt != null;
-            if(nbt.contains("Trim")) {
-				return nbt.get("Trim");
+            if(nbt.contains(DataComponentTypes.TRIM)) {
+				return nbt.get(DataComponentTypes.TRIM);
 
 			}
-		}
 		return null;
 	}
 
@@ -164,22 +168,24 @@ public class ArmorTrimEffects implements ModInitializer {
 		// No trim specified, so all good
 		if(pattern == null && material == null) return true;
 
-		NbtCompound trim = (NbtCompound) getTrim(item);
+		ArmorTrim trim = getTrim(item);
 		if(trim == null) return false;
 
 		boolean patternmatch = true, materialmatch = true;
+		LOGGER.info("Pattern is: " + trim.getPattern().getIdAsString());
+		LOGGER.info("Material is: " + trim.getMaterial().getIdAsString());
 		if(pattern != null) {
-			patternmatch = ("minecraft:" + pattern).replace("\"", "").equals(trim.getString("pattern"));
+			patternmatch = ("minecraft:" + pattern).replace("\"", "").equals(trim.getPattern().getIdAsString());
 		}
 		if(material != null) {
-			materialmatch = ("minecraft:" + material).replace("\"", "").equals(trim.getString("material"));
+			materialmatch = ("minecraft:" + material).replace("\"", "").equals(trim.getMaterial().getIdAsString());
 		}
 
-		LOGGER.info("Pattern match: " + patternmatch + "Material match: " + materialmatch);
+		if(debug) LOGGER.info("Pattern match: " + patternmatch + "Material match: " + materialmatch);
 		return patternmatch && materialmatch;
 	}
 
-	private StatusEffect stringToEffect(String string) {
+	private RegistryEntry<StatusEffect> stringToEffect(String string) {
 		return switch (string) {
 			case "speed" -> StatusEffects.SPEED;
 			case "slowness" -> StatusEffects.SLOWNESS;
