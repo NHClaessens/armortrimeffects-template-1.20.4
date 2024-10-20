@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.nhclaessens.armortrimeffects.config.SimpleConfig;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ public class ArmorTrimEffects implements ModInitializer {
 	private final HashMap<Number, ItemStack[]> lastArmorSets = new HashMap<>();
 	private JsonArray ARMOR_SETS = null;
 	private final ArrayList<String> activeEffectStrings = new ArrayList<>();
-	private final boolean debug = true;
+	private final boolean debug = false;
 
 
 	SimpleConfig CONFIG = SimpleConfig.of("ArmorTrimEffectsConfig").provider(this::provider).request();
@@ -60,22 +61,26 @@ public class ArmorTrimEffects implements ModInitializer {
 		for(ServerPlayerEntity player : server.getPlayers()) {
 			int playerIndex = player.getId();
 			ItemStack[] currentArmorSet = new ItemStack[]{
-					player.getInventory().getArmorStack(0), // Helmet
-					player.getInventory().getArmorStack(1), // Chestplate
-					player.getInventory().getArmorStack(2), // Leggings
-					player.getInventory().getArmorStack(3)  // Boots
+					player.getInventory().getArmorStack(0).copy(), // Helmet
+					player.getInventory().getArmorStack(1).copy(), // Chestplate
+					player.getInventory().getArmorStack(2).copy(), // Leggings
+					player.getInventory().getArmorStack(3).copy(),  // Boots
 			};
 
+
 			ItemStack[] last = lastArmorSets.get(playerIndex);
+			if(debug) LOGGER.info("Current armor: " + Arrays.toString(currentArmorSet));
+			if(debug) LOGGER.info("Last armor: " + Arrays.toString(last));
 
 			for (int i = 0; i < 4; i++) {
 				if(last == null || !ItemStack.areEqual(last[i], currentArmorSet[i])) {
-					// Armor has changed
+					if(debug) LOGGER.info("Armor changed!");
+					lastArmorSets.put(playerIndex, currentArmorSet);
 					onArmorChanged(currentArmorSet, player);
+					break;
 				}
 			}
 
-			lastArmorSets.put(playerIndex, currentArmorSet);
 		}
 	}
 
@@ -181,8 +186,10 @@ public class ArmorTrimEffects implements ModInitializer {
 		if(trim == null) return false;
 
 		boolean patternmatch = true, materialmatch = true;
-		LOGGER.info("Pattern is: " + trim.getPattern().getIdAsString());
-		LOGGER.info("Material is: " + trim.getMaterial().getIdAsString());
+		if(debug){
+			LOGGER.info("Pattern is: " + trim.getPattern().getIdAsString());
+			LOGGER.info("Material is: " + trim.getMaterial().getIdAsString());
+		}
 		if(pattern != null) {
 			patternmatch = ("minecraft:" + pattern).replace("\"", "").equals(trim.getPattern().getIdAsString());
 		}
