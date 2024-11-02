@@ -10,9 +10,8 @@ import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.trim.ArmorTrim;
+import net.minecraft.item.equipment.trim.ArmorTrim;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -187,14 +186,14 @@ public class ArmorTrimEffects implements ModInitializer {
 
 		boolean patternmatch = true, materialmatch = true;
 		if(debug){
-			LOGGER.info("Pattern is: " + trim.getPattern().getIdAsString());
-			LOGGER.info("Material is: " + trim.getMaterial().getIdAsString());
+			LOGGER.info("Pattern is: " + trim.pattern().getIdAsString());
+			LOGGER.info("Material is: " + trim.material().getIdAsString());
 		}
 		if(pattern != null) {
-			patternmatch = ("minecraft:" + pattern).replace("\"", "").equals(trim.getPattern().getIdAsString());
+			patternmatch = ("minecraft:" + pattern).replace("\"", "").equals(trim.pattern().getIdAsString());
 		}
 		if(material != null) {
-			materialmatch = ("minecraft:" + material).replace("\"", "").equals(trim.getMaterial().getIdAsString());
+			materialmatch = ("minecraft:" + material).replace("\"", "").equals(trim.material().getIdAsString());
 		}
 
 		if(debug) LOGGER.info("Pattern match: " + patternmatch + "Material match: " + materialmatch);
@@ -204,47 +203,5 @@ public class ArmorTrimEffects implements ModInitializer {
 	private Optional<RegistryEntry.Reference<StatusEffect>> stringToEffect(String string) {
 		Identifier id = Identifier.tryParse(string);
 		return Registries.STATUS_EFFECT.getEntry(id);
-
-//		return switch (string) {
-//			case "speed" -> StatusEffects.SPEED;
-//			case "slowness" -> StatusEffects.SLOWNESS;
-//			case "haste" -> StatusEffects.HASTE;
-//			case "mining_fatigue" -> StatusEffects.MINING_FATIGUE;
-//			case "strength" -> StatusEffects.STRENGTH;
-//			case "instant_health" -> StatusEffects.INSTANT_HEALTH;
-//			case "instant_damage" -> StatusEffects.INSTANT_DAMAGE;
-//			case "jump_boost" -> StatusEffects.JUMP_BOOST;
-//			case "nausea" -> StatusEffects.NAUSEA;
-//			case "regeneration" -> StatusEffects.REGENERATION;
-//			case "resistance" -> StatusEffects.RESISTANCE;
-//			case "fire_resistance" -> StatusEffects.FIRE_RESISTANCE;
-//			case "water_breathing" -> StatusEffects.WATER_BREATHING;
-//			case "invisibility" -> StatusEffects.INVISIBILITY;
-//			case "blindness" -> StatusEffects.BLINDNESS;
-//			case "night_vision" -> StatusEffects.NIGHT_VISION;
-//			case "hunger" -> StatusEffects.HUNGER;
-//			case "weakness" -> StatusEffects.WEAKNESS;
-//			case "poison" -> StatusEffects.POISON;
-//			case "health_boost" -> StatusEffects.HEALTH_BOOST;
-//			case "absorption" -> StatusEffects.ABSORPTION;
-//			case "saturation" -> StatusEffects.SATURATION;
-//			case "glowing" -> StatusEffects.GLOWING;
-//			case "levitation" -> StatusEffects.LEVITATION;
-//			case "luck" -> StatusEffects.LUCK;
-//			case "unluck" -> StatusEffects.UNLUCK;
-//			case "slow_falling" -> StatusEffects.SLOW_FALLING;
-//			case "conduit_power" -> StatusEffects.CONDUIT_POWER;
-//			case "dolphins_grace" -> StatusEffects.DOLPHINS_GRACE;
-//			case "bad_omen" -> StatusEffects.BAD_OMEN;
-//			case "hero_of_the_village" -> StatusEffects.HERO_OF_THE_VILLAGE;
-//			case "darkness" -> StatusEffects.DARKNESS;
-//			case "trial_omen" -> StatusEffects.TRIAL_OMEN;
-//			case "raid_omen" -> StatusEffects.RAID_OMEN;
-//			case "wind_charged" -> StatusEffects.WIND_CHARGED;
-//			case "weaving" -> StatusEffects.WEAVING;
-//			case "oozing" -> StatusEffects.OOZING;
-//			case "infested" -> StatusEffects.INFESTED;
-//			default -> null;
-//		};
 	}
 }
